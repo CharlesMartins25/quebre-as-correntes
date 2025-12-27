@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quebre as Correntes PRO - FINAL OTIMIZADO</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh; 
+            color: #333; 
+            line-height: 1.6;
+        }
+
+        /* Telas de overlay */
+        .screen { 
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; right: 0; bottom: 0; 
+            background: rgba(0,0,0,0.8); 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 1000; 
+        }
+        .screen.active { display: flex; }
+        .box { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3); 
+            width: 90%; 
+            max-width: 450px; 
+            text-align: center; 
+        }
+        .title { 
+            color: #1e3a8a; 
+            font-size: 28px; 
+            font-weight: 800; 
+            margin-bottom: 15px; 
+        }
+        .input-group { 
+            margin-bottom: 20px; 
+            text-align: left; 
+        }
+        .input-group label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            color: #374151; 
+        }
+        .input-group input { 
+            width: 100%; 
+            padding: 14px; 
+            border: 2px solid #e5e7eb; 
+            border-radius: 12px; 
+            font-size: 16px; 
+            transition: all 0.3s; 
+        }
+        .input-group input:focus { 
+            outline: none; 
+            border-color: #3b82f6; 
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1); 
+        }
+        .btn { 
+            width: 100%; 
+            padding: 16px; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 16px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            margin-top: 10px; 
+            background: #1e3a8a; 
+            color: white; 
+        }
+        .btn:hover { 
+            background: #1e40af; 
+            transform: translateY(-2px); 
+        }
+        .btn-success { background: #10b981; }
+        .btn-success:hover { background: #059669; }
+
+        /* App Principal */
+        .app-main { 
+            display: none; 
+            min-height: 100vh; 
+        }
+        .header { 
+            background: white; 
+            padding: 20px 30px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+        }
+        .logo { 
+            font-size: 24px; 
+            font-weight: 800; 
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+        .user-info { 
+            display: flex; 
+            align-items: center; 
+            gap: 20px; 
+        }
+        .stat { 
+            background: #10b981; 
+            color: white; 
+            padding: 10px 18px; 
+            border-radius: 25px; 
+            font-size: 14px; 
+            font-weight: 600; 
+        }
+        .user-avatar { 
+            width: 48px; 
+            height: 48px; 
+            border-radius: 50%; 
+            background: #1e3a8a; 
+            color: white; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 700; 
+            cursor: pointer; 
+        }
+
+        .main-content { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 30px 20px; 
+        }
+        .tabs { 
+            display: flex; 
+            background: white; 
+            border-radius: 16px; 
+            padding: 12px; 
+            margin-bottom: 30px; 
+            gap: 8px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            flex-wrap: wrap; 
+        }
+        .tab-btn { 
+            flex: 1; 
+            min-width: 140px; 
+            padding: 14px 20px; 
+            border: none; 
+            background: transparent; 
+            border-radius: 12px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            color: #6b7280; 
+            transition: all 0.3s; 
+        }
+        .tab-btn.active { 
+            background: #1e3a8a; 
+            color: white; 
+            transform: translateY(-2px); 
+            box-shadow: 0 8px 25px rgba(30,58,138,0.3); 
+        }
+        .tab-content { 
+            display: none; 
+            background: white; 
+            border-radius: 20px; 
+            padding: 40px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            margin-bottom: 30px; 
+        }
+        .tab-content.active { display: block; }
+
+        .section-title { 
+            font-size: 28px; 
+            font-weight: 800; 
+            color: #1e3a8a; 
+            margin-bottom: 20px; 
+        }
+        .metrics-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            gap: 25px; 
+            margin-bottom: 40px; 
+        }
+        .metric-card { 
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6); 
+            color: white; 
+            padding: 30px; 
+            border-radius: 20px; 
+            text-align: center; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+        }
+        .metric-value { 
+            font-size: 42px; 
+            font-weight: 900; 
+            margin-bottom: 8px; 
+        }
+        .metric-label { 
+            font-size: 16px; 
+            opacity: 0.95; 
+            font-weight: 600; 
+        }
+
+        .weekly-evolution { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 25px; 
+            margin-bottom: 40px; 
+        }
+        .week-card { 
+            background: linear-gradient(135deg, #10b981, #059669); 
+            color: white; 
+            padding: 30px; 
+            border-radius: 20px; 
+            text-align: center; 
+        }
+        .week-card.warning { 
+            background: linear-gradient(135deg, #f59e0b, #d97706); 
+        }
+
+        .grid { display: grid; gap: 30px; }
+        .grid-2 { grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); }
+        .card { 
+            background: #f8fafc; 
+            border-radius: 16px; 
+            padding: 30px; 
+            border: 1px solid #e5e7eb; 
+            transition: all 0.3s; 
+        }
+        .card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+        }
+        .form-group { margin-bottom: 25px; }
+        .form-label { 
+            display: block; 
+            font-weight: 700; 
+            color: #374151; 
+            margin-bottom: 10px; 
+            font-size: 15px; 
+        }
+        .form-input, .form-textarea { 
+            width: 100%; 
+            padding: 16px 20px; 
+            border: 2px solid #e5e7eb; 
+            border-radius: 14px; 
+            font-size: 16px; 
+            transition: all 0.3s; 
+            background: white; 
+        }
+        .form-input:focus, .form-textarea:focus { 
+            outline: none; 
+            border-color: #3b82f6; 
+            box-shadow: 0 0 0 4px rgba(59,130,246,0.1); 
+        }
+        .form-textarea { min-height: 120px; resize: vertical; }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 25px; 
+            background: white; 
+            border-radius: 16px; 
+            overflow: hidden; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
+        }
+        th { 
+            background: #f3f4f6; 
+            padding: 18px 20px; 
+            text-align: left; 
+            font-weight: 700; 
+            color: #374151; 
+        }
+        td { padding: 18px 20px; border-bottom: 1px solid #e5e7eb; }
+        .status-input { 
+            width: 70px; 
+            padding: 12px; 
+            border: 2px solid #e5e7eb; 
+            border-radius: 10px; 
+            text-align: center; 
+            font-weight: 800; 
+            font-size: 16px; 
+            text-transform: uppercase; 
+        }
+        .status-input:focus { 
+            border-color: #10b981; 
+            background: #f0fdf4; 
+        }
+
+        .challenge-item { 
+            padding: 25px; 
+            margin-bottom: 20px; 
+            border-radius: 16px; 
+            border-left: 5px solid #8b5cf6; 
+            background: #f8fafc; 
+            position: relative; 
+            transition: all 0.3s; 
+            opacity: 0.6; 
+        }
+        .challenge-item.unlocked { 
+            opacity: 1; 
+            border-left-color: #8b5cf6; 
+            box-shadow: 0 5px 15px rgba(139,92,246,0.2); 
+        }
+        .challenge-item.completed { 
+            background: linear-gradient(135deg, #10b981, #059669); 
+            color: white; 
+            border-left-color: #10b981; 
+            opacity: 1; 
+            box-shadow: 0 10px 25px rgba(16,185,129,0.3); 
+        }
+        .challenge-lock { 
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            font-size: 24px; 
+            color: #9ca3af; 
+        }
+        .challenge-title { 
+            font-weight: 700; 
+            margin-bottom: 10px; 
+            font-size: 18px; 
+        }
+
+        .legend { 
+            display: flex; 
+            gap: 20px; 
+            margin-bottom: 20px; 
+            font-size: 14px; 
+            flex-wrap: wrap; 
+        }
+        .legend-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+        }
+        .legend-color { 
+            width: 20px; 
+            height: 20px; 
+            border-radius: 4px; 
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) { 
+            .main-content { padding: 20px 15px; }
+            .grid-2 { grid-template-columns: 1fr; }
+            .tabs { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <!-- GERENCIADOR -->
+    <div class="screen active" id="gerenciador">
+        <div class="box">
+            <h1 class="title">Gerenciador PRO</h1>
+            <div class="input-group">
+                <label>Nome do Cliente</label>
+                <input type="text" id="clientName" placeholder="Maria Silva">
+            </div>
+            <div class="input-group">
+                <label>Senha do Cliente</label>
+                <input type="password" id="clientPassword" placeholder="123456">
+            </div>
+            <button class="btn" onclick="createClient()">CRIAR CLIENTE</button>
+            <div style="max-height: 300px; overflow-y: auto; margin-top: 20px;" id="clientsList"></div>
+        </div>
+    </div>
+
+    <!-- LOGIN CLIENTE -->
+    <div class="screen" id="loginCliente">
+        <div class="box">
+            <h1 class="title">Acesse seu Perfil</h1>
+            <div id="profileInfo"></div>
+            <div class="input-group">
+                <label>Nome EXATO</label>
+                <input type="text" id="loginName" placeholder="Digite seu nome cadastrado">
+            </div>
+            <div class="input-group">
+                <label>Senha EXATA</label>
+                <input type="password" id="loginPass" placeholder="Senha cadastrada">
+            </div>
+            <button class="btn" onclick="clientLogin()">ENTRAR NO APP</button>
+        </div>
+    </div>
+
+    <!-- APP PRINCIPAL -->
+    <div class="app-main" id="appMain">
+        <header class="header">
+            <div class="logo">Quebre as Correntes PRO</div>
+            <div class="user-info">
+    <div class="stats">
+        <span class="stat" id="dayStat">Dia 1/30</span>
+        <span class="stat" id="consistencyStat">0%</span>
+    </div>
+
+    <div class="user-avatar" onclick="toggleProfileMenu()"></div>
+
+    <div id="profileMenu" style="
+         position:absolute; top:70px; right:30px; z-index:1100;
+         background:#ffffff; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.15);
+         padding:16px 18px; min-width:260px; display:none; font-size:14px;">
+        <div style="font-weight:700; color:#1e3a8a; margin-bottom:8px;">Perfil do Ciclo</div>
+        <div style="color:#4b5563; margin-bottom:6px;">
+            <strong>Nome:</strong> <span id="profileName"></span>
+        </div>
+        <div style="color:#4b5563; margin-bottom:6px;">
+            <strong>ID:</strong> <span id="profileId"></span>
+        </div>
+        <div style="color:#4b5563; margin-bottom:10px;">
+    <strong>Promessa:</strong> <span id="profilePromise"></span>
+</div>
+
+<div style="margin:10px 0;">
+    <strong style="font-size:13px; color:#4b5563;">Ciclos salvos:</strong>
+    <div id="cyclesList" style="max-height:120px; overflow-y:auto; margin-top:6px; font-size:12px; color:#4b5563;"></div>
+</div>
+
+<hr style="border:none; border-top:1px solid #e5e7eb; margin:8px 0 10px;">
+
+
+        <div class="form-group" style="margin-bottom:10px;">
+            <label class="form-label" style="font-size:13px;">Nova senha</label>
+            <input type="password" id="newPassword" class="form-input" placeholder="Mínimo 4 caracteres">
+        </div>
+        <button class="btn btn-success" style="margin-top:4px;" onclick="changePassword()">
+            Alterar senha
+        </button>
+
+        <button class="btn" style="margin-top:10px; background:#6b7280;" onclick="logoutApp()">
+            Sair do ciclo
+        </button>
+    </div>
+</div>
+
+        </header>
+
+        <div class="main-content">
+            <div class="tabs" id="tabs">
+                <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+                <button class="tab-btn" data-tab="habits">Hábitos</button>
+                <button class="tab-btn" data-tab="challenges">Desafios</button>
+                <button class="tab-btn" data-tab="weekly">Semanal</button>
+            </div>
+
+            <!-- DASHBOARD -->
+            <div id="dashboard" class="tab-content active">
+                <h2 class="section-title">Dashboard Completo</h2>
+                <div class="weekly-evolution" id="weeklyEvolution"></div>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" id="daysDone">0</div>
+                        <div class="metric-label">Dias Completos</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="consistencyPct">0%</div>
+                        <div class="metric-label">Consistência Geral</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="streakCount">0</div>
+                        <div class="metric-label">Sequência Atual</div>
+                    </div>
+                </div>
+                <div class="grid grid-2">
+                    <div class="card">
+    <h3 style="margin-bottom: 25px; font-weight: 800; color: #1e3a8a;">Meu Compromisso</h3>
+    <textarea class="form-textarea" id="promiseText" placeholder="Minha promessa de 30 dias..."></textarea>
+</div>
+
+			<div class="card" style="margin-top:20px;">
+    <h3 style="margin-bottom: 15px; font-weight: 800; color: #1e3a8a;">Gestão do Ciclo</h3>
+    <p style="font-size:14px; color:#4b5563; margin-bottom:10px;">
+        Pode guardar o resultado deste ciclo de 30 dias e iniciar um novo ciclo limpo.
+    </p>
+    <button class="btn btn-success" style="margin-bottom:8px;" onclick="archiveCurrentCycle()">
+        Salvar ciclo de 30 dias
+    </button>
+    <button class="btn" style="background:#ef4444;" onclick="resetCycle()">
+        Resetar para novo ciclo
+    </button>
+
+</div>
+<script>
+function archiveCurrentCycle() {
+    if (!currentClient) return;
+
+    const data = currentClient.data;
+
+    const cycleSummary = {
+        savedAt: new Date().toISOString(),
+        promise: data.promise,
+        habitMain: data.habitMain,
+        habitSec: data.habitSec,
+        days: JSON.parse(JSON.stringify(data.days)),
+        weeklyReviews: JSON.parse(JSON.stringify(data.weeklyReviews)),
+        challenges: JSON.parse(JSON.stringify(data.challenges)),
+        consistencyFinal: Math.round(
+            data.days.filter(d => d.status === 'F' || d.status === 'M').length / 30 * 100
+        )
+    };
+
+    if (!Array.isArray(currentClient.data.cycles)) {
+        currentClient.data.cycles = [];
+    }
+
+    currentClient.data.cycles.push(cycleSummary);
+    saveClientData();
+    alert('Ciclo atual salvo no histórico! Pode agora resetar para um novo ciclo.');
+}
+
+function resetCycle() {
+    if (!currentClient) return;
+
+    if (!confirm('Tem certeza que deseja limpar este ciclo e começar um novo? Os dados atuais continuarão guardados no histórico se já tiver salvado.')) {
+        return;
+    }
+
+    currentClient.data.days = Array(30).fill().map((_, i) => ({
+        day: i + 1,
+        status: '',
+        mood: '',
+        note: '',
+        challengeText: ''
+    }));
+
+    currentClient.data.challenges = Array(30).fill(false);
+
+    currentClient.data.weeklyReviews = [
+        { week: '1', good: '', bad: '', adjust: '', done: false },
+        { week: '2', good: '', bad: '', adjust: '', done: false },
+        { week: '3', good: '', bad: '', adjust: '', done: false },
+        { week: '4', good: '', bad: '', adjust: '', done: false },
+        { week: '5', good: '', bad: '', adjust: '', done: false }
+    ];
+
+    // limpar promessa e hábitos
+    currentClient.data.promise   = '';
+    currentClient.data.habitMain = '';
+    currentClient.data.habitSec  = '';
+
+    saveClientData();
+    renderAll();
+    alert('Novo ciclo iniciado! Todos os dias, desafios, semanas, promessa e hábitos foram limpos.');
+}
+
+function loadCycle(index) {
+    if (!currentClient) return;
+    const cycles = currentClient.data.cycles || [];
+    const cycle = cycles[index];
+    if (!cycle) {
+        alert('Ciclo não encontrado.');
+        return;
+    }
+
+    if (!confirm('Carregar este ciclo vai substituir os dados atuais na tela (dias, semanas e desafios). Continuar?')) {
+        return;
+    }
+
+    currentClient.data.promise       = cycle.promise;
+    currentClient.data.habitMain     = cycle.habitMain;
+    currentClient.data.habitSec      = cycle.habitSec;
+    currentClient.data.days          = JSON.parse(JSON.stringify(cycle.days));
+    currentClient.data.weeklyReviews = JSON.parse(JSON.stringify(cycle.weeklyReviews));
+    currentClient.data.challenges    = JSON.parse(JSON.stringify(cycle.challenges));
+
+    saveClientData();
+    renderAll();
+
+    const menu = document.getElementById('profileMenu');
+    if (menu) menu.style.display = 'none';
+
+    alert('Ciclo carregado com sucesso!');
+}
+</script>
+
+                    <div class="card">
+                        <h3 style="margin-bottom: 25px; font-weight: 800; color: #1e3a8a;">Hábitos do Ciclo</h3>
+                        <input class="form-input" id="habitMain" placeholder="Hábito principal">
+                        <input class="form-input" id="habitSec" placeholder="Hábito secundário" style="margin-top: 15px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- HÁBITOS -->
+            <div id="habits" class="tab-content">
+                <h2 class="section-title">Rastreador Diário (F/M/N)</h2>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #10b981;"></div>
+                        <span><strong>F</strong> Feito (100%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #f59e0b;"></div>
+                        <span><strong>M</strong> Metade (50%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #e5e7eb;"></div>
+                        <span style="color: #6b7280;"><strong>N</strong> Não feito</span>
+                    </div>
+                </div>
+                <div class="card" style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 90px;">Dia</th>
+                                <th style="width: 120px;">Status F/M/N</th>
+                                <th style="width: 120px;">Humor 1-5</th>
+                                <th>Notas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="habitTable"></tbody>
+                    </table>
+                </div>
+                <button class="btn btn-success" onclick="saveHabits()" style="max-width: 300px; margin: 20px auto; display: block;">SALVAR HÁBITOS</button>
+            </div>
+
+            <!-- DESAFIOS -->
+            <div id="challenges" class="tab-content">
+                <h2 class="section-title">30 Desafios Sequenciais</h2>
+                <p style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 30px; border-left: 4px solid #8b5cf6;">
+    Complete um desafio para liberar o próximo.
+</p>
+                <div style="max-height: 600px; overflow-y: auto;" id="challengesList"></div>
+            </div>
+
+            <!-- SEMANAL -->
+            <div id="weekly" class="tab-content">
+                <h2 class="section-title">Relatórios Semanais</h2>
+                <div class="grid" id="weeklyReviews"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CONSTANTES
+        const CHALLENGES = [
+            "Definir promessa principal do ciclo de 30 dias",
+            "Escolher hábito CRISTALINO (1 palavra)",
+            "Criar versão mínima viável (2min/dia)",
+            "Identificar gatilho específico do ambiente",
+            "Organizar ambiente físico para sucesso",
+            "Regra: nunca 2 dias seguidos sem hábito",
+            "Criar plano detalhado de recadas",
+            "Revisar semana 1 completa (dias 1-7)",
+            "Analisar dados objetivos da semana 1",
+            "Ajustar estratégia baseada em dados",
+            "Definir recompensa semanal tangível",
+            "Testar melhor horário do dia",
+            "Criar ritual pré-hábito (3 passos)",
+            "Analisar padrões de recada",
+            "Escalar dificuldade em 10%",
+            "Sistema de accountability externo",
+            "Testar novo contexto/ambiente",
+            "Revisar progresso na metade (dia 15)",
+            "Ajustar baseado em padrões de humor",
+            "Visualizar resultado final em detalhes",
+            "Implementar regra dos 5 segundos",
+            "Checklist visual diário",
+            "Analisar níveis de energia diários",
+            "Escrever porquê emocional profundo",
+            "Sequência de 3 micro-hábitos",
+            "Revisar semana 4 completa (22-28)",
+            "Planejar transição pós-30 dias",
+            "Celebrar conquista com ritual",
+            "Definir próximo ciclo de hábitos",
+            "Compartilhar resultado com alguém"
+        ];
+
+        let clients = JSON.parse(localStorage.getItem('quebreclients') || '[]');
+        let currentClient = null;
+
+        // INICIALIZAÇÃO
+        function initApp() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const profileId = urlParams.get('profile');
+            
+            if (profileId) {
+                const client = clients.find(c => c.id === profileId);
+                if (client) {
+                    showClientLogin(client);
+                } else {
+                    document.body.innerHTML = '<h1 style="color: white; text-align: center; padding: 50px;">Perfil não encontrado. Crie no gerenciador primeiro.</h1>';
+                }
+            } else {
+                renderClients();
+            }
+        }
+
+        function showGerenciador() {
+            document.getElementById('gerenciador').classList.add('active');
+        }
+
+        function showClientLogin(client) {
+            currentClient = client;
+            document.getElementById('loginCliente').classList.add('active');
+            document.getElementById('profileInfo').innerHTML = `
+                <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #3b82f6;">
+                    <strong>Perfil:</strong> ${client.id}<br>
+                    <strong>Nome cadastrado:</strong> <span style="color: #1e3a8a; font-weight: 700;">${client.name}</span><br>
+                    <small style="color: #6b7280;">Digite EXATAMENTE nome + senha acima</small>
+                </div>
+            `;
+        }
+
+        function createClient() {
+            const name = document.getElementById('clientName').value.trim();
+            const pwd = document.getElementById('clientPassword').value;
+            
+            if (!name || pwd.length < 4) {
+                return alert('Nome e senha (4 caracteres) obrigatórios!');
+            }
+            
+            const id = 'P' + Date.now().toString(36).slice(-6).toUpperCase();
+            const client = {
+                id,
+                name,
+                password: pwd,
+                data: {
+                    promise: '',
+                    habitMain: '',
+                    habitSec: '',
+                    days: Array(30).fill().map((_, i) => ({
+                        day: i + 1,
+                        status: '',
+                        mood: '',
+                        note: ''
+                    })),
+                    weeklyReviews: [
+    { week: '1', good: '', bad: '', adjust: '', done: false },
+    { week: '2', good: '', bad: '', adjust: '', done: false },
+    { week: '3', good: '', bad: '', adjust: '', done: false },
+    { week: '4', good: '', bad: '', adjust: '', done: false },
+    { week: '5', good: '', bad: '', adjust: '', done: false }
+],
+
+                    challenges: Array(30).fill(false),
+cycles: []
+                }
+            };
+            
+            clients.push(client);
+            localStorage.setItem('quebreclients', JSON.stringify(clients));
+            alert(`Cliente ${name} criado! LINK: ${window.location.href}?profile=${id}`);
+            
+            document.getElementById('clientName').value = '';
+            document.getElementById('clientPassword').value = '';
+            renderClients();
+        }
+
+        function clientLogin() {
+            const name = document.getElementById('loginName').value.trim();
+            const pwd = document.getElementById('loginPass').value;
+            
+            if (name !== currentClient.name || pwd !== currentClient.password) {
+                return alert('Nome ou senha incorretos!');
+            }
+            
+            alert('LOGIN BEM-SUCEDIDO');
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('appMain').style.display = 'block';
+            document.querySelector('.user-avatar').textContent = name[0].toUpperCase();
+            
+            setupAppTabs();
+            renderAll();
+        }
+
+       function setupAppTabs() {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.onclick = (e) => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            e.target.classList.add('active');
+            document.getElementById(e.target.dataset.tab).classList.add('active');
+        };
+    });
+
+    const data = currentClient.data;
+
+    const promiseEl   = document.getElementById('promiseText');
+    const habitMainEl = document.getElementById('habitMain');
+    const habitSecEl  = document.getElementById('habitSec');
+
+    // carregar valores salvos
+    promiseEl.value   = data.promise   || '';
+    habitMainEl.value = data.habitMain || '';
+    habitSecEl.value  = data.habitSec  || '';
+
+    // salvar ao digitar
+    promiseEl.oninput = () => {
+        currentClient.data.promise = promiseEl.value;
+        saveClientData();
+    };
+    habitMainEl.oninput = () => {
+        currentClient.data.habitMain = habitMainEl.value;
+        saveClientData();
+    };
+    habitSecEl.oninput = () => {
+        currentClient.data.habitSec = habitSecEl.value;
+        saveClientData();
+    };
+}
+
+
+        function renderAll() {
+            renderDashboard();
+            renderHabitTable();
+            renderChallenges();
+            renderWeeklyReviews();
+        }
+
+        function renderDashboard() {
+            const data = currentClient.data;
+            const done = data.days.filter(d => d.status === 'F' || d.status === 'M').length;
+            const consistency = Math.round((done / 30) * 100);
+            let streak = 0;
+            
+            for (let i = 29; i >= 0; i--) {
+                if (data.days[i].status === 'F' || data.days[i].status === 'M') {
+                    streak++;
+                } else {
+                    break;
+                }
+            } 
+	    const weeksDone = currentClient.data.weeklyReviews
+       	 	? currentClient.data.weeklyReviews.filter(w => w.done).length
+        	: 0;
+            
+            document.getElementById('daysDone').textContent = done;
+            document.getElementById('consistencyPct').textContent = consistency + '%';
+            document.getElementById('streakCount').textContent = streak;
+            document.getElementById('dayStat').textContent = `Dia ${done}/30 · Semanas ${weeksDone}/5`;
+            document.getElementById('consistencyStat').textContent = consistency + '%';
+            
+            // Carregar dados do dashboard
+            document.getElementById('promiseText').value = data.promise || '';
+            document.getElementById('habitMain').value = data.habitMain || '';
+            document.getElementById('habitSec').value = data.habitSec || '';
+            
+            renderWeeklyEvolution();
+        }
+
+        function renderWeeklyEvolution() {
+            const weeks = getWeeklyStats();
+            document.getElementById('weeklyEvolution').innerHTML = weeks.map((week, i) => `
+                <div class="week-card ${week.consistency < 60 ? 'warning' : ''}">
+                    <div class="metric-value">${week.done}/${week.total}</div>
+                    <div style="font-size: 16px; margin: 10px 0;">Semana ${i + 1}</div>
+                    <div style="opacity: 0.9;">${week.consistency}%</div>
+                </div>
+            `).join('');
+        }
+
+        function getWeeklyStats() {
+            const weeks = [];
+            for (let i = 0; i < 5; i++) {
+                const start = i * 7;
+                const end = Math.min(start + 7, 30);
+                const weekDays = currentClient.data.days.slice(start, end);
+                const done = weekDays.filter(d => d.status === 'F' || d.status === 'M').length;
+                weeks.push({
+                    done,
+                    total: end - start,
+                    consistency: Math.round((done / (end - start)) * 100)
+                });
+            }
+            return weeks;
+        }
+
+        function renderHabitTable() {
+            const tbody = document.getElementById('habitTable');
+            tbody.innerHTML = '';
+            
+            currentClient.data.days.slice(0, 30).forEach((day, i) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>Dia ${day.day}</strong></td>
+                    <td><input class="status-input" value="${day.status}" maxlength="1" data-idx="${i}"></td>
+                    <td><input type="number" min="1" max="5" value="${day.mood}" data-idx="${i}" data-type="mood" style="width: 80px;"></td>
+                    <td><input class="form-input" style="width: 100%; font-size: 14px;" value="${day.note}" data-idx="${i}" data-type="note" placeholder="Notas..."></td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Event listeners para hábitos
+            tbody.querySelectorAll('input').forEach(input => {
+                input.oninput = (e) => {
+                    const i = parseInt(e.target.dataset.idx);
+                    const type = e.target.dataset.type;
+                    
+                    if (!currentClient.data.days[i]) {
+                        currentClient.data.days[i] = { day: i + 1 };
+                    }
+                    
+                    if (type === 'status') {
+                        currentClient.data.days[i].status = e.target.value.toUpperCase().slice(0, 1);
+                    } else if (type === 'mood') {
+                        currentClient.data.days[i].mood = e.target.value;
+                    } else {
+                        currentClient.data.days[i].note = e.target.value;
+                    }
+                    
+                    saveClientData();
+                    renderDashboard();
+                }
+            });
+        }
+
+        function saveHabits() {
+            saveClientData();
+            renderDashboard();
+            alert('Hábitos salvos e dashboard atualizado!');
+        }
+
+     function renderChallenges() {
+    const container = document.getElementById('challengesList');
+    let html = '';
+    
+    CHALLENGES.forEach((challenge, i) => {
+        const completed = currentClient.data.challenges[i];
+        const unlocked = i === 0 || currentClient.data.challenges[i - 1];
+        const dayStatus = currentClient.data.days[i]?.status;
+        const isCompleted = completed || dayStatus === 'F';
+
+        // Auto-completar desafio se dia foi marcado como feito
+        if (isCompleted && !completed) {
+            currentClient.data.challenges[i] = true;
+        }
+
+        const lockIcon = !unlocked ? '🔒' : '';
+        const statusClass = isCompleted ? 'completed' : unlocked ? 'unlocked' : '';
+        const statusText = isCompleted ? '✅ CONCLUÍDO' : unlocked ? '🔓 LIBERADO' : '🔒 BLOQUEADO';
+        const button = unlocked && !isCompleted ? 
+            `<button class="btn btn-success" onclick="completeChallenge(${i})" style="margin-top: 15px; padding: 12px 24px;">Concluir Desafio</button>` : '';
+
+        const challengeText = currentClient.data.days[i]?.challengeText || '';
+
+        html += `
+            <div class="challenge-item ${statusClass}">
+                ${lockIcon ? `<div class="challenge-lock">${lockIcon}</div>` : ''}
+                <div class="challenge-title">Dia ${i + 1}: ${challenge}</div>
+                <div style="font-size: 18px; font-weight: 700; color: #374151; margin-top: 10px;">${statusText}</div>
+
+                ${unlocked ? `
+                    <div class="form-group" style="margin-top:15px;">
+                        <label class="form-label">Como você fez este desafio?</label>
+                        <textarea class="form-textarea challenge-text"
+                                  data-day="${i}"
+                                  placeholder="Descreva em 1-3 linhas o que fez...">${challengeText}</textarea>
+                    </div>
+                ` : ''}
+
+                ${button}
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+
+    // salvar texto dos desafios por dia
+    container.querySelectorAll('.challenge-text').forEach(t => {
+        t.oninput = (e) => {
+            const idx = parseInt(e.target.dataset.day);
+            if (!currentClient.data.days[idx]) {
+                currentClient.data.days[idx] = { day: idx + 1 };
+            }
+            currentClient.data.days[idx].challengeText = e.target.value;
+            saveClientData();
+        };
+    });
+}
+
+function completeChallenge(index) {
+    currentClient.data.challenges[index] = true;
+
+    if (!currentClient.data.days[index]) {
+        currentClient.data.days[index] = { day: index + 1, status: 'F', mood: '', note: '' };
+    } else {
+        currentClient.data.days[index].status = 'F';
+    }
+
+    saveClientData();
+    renderChallenges();
+    renderDashboard();
+}
+
+
+        function renderWeeklyReviews() {
+    const container = document.getElementById('weeklyReviews');
+    let html = '';
+    
+    currentClient.data.weeklyReviews.forEach((week, i) => {
+        html += `
+            <div class="card">
+                <h3 style="color: #1e3a8a; margin-bottom: 25px; font-size: 22px;">
+                    Semana ${week.week} ${week.done ? '✅' : ''}
+                </h3>
+                <div class="grid grid-2">
+                    <div class="form-group">
+                        <label class="form-label">O que funcionou bem?</label>
+                        <textarea class="form-textarea"
+                                  data-week="${i}"
+                                  data-field="good"
+                                  placeholder="Ex: Caminhada matinal funcionou bem...">${week.good}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Principais problemas</label>
+                        <textarea class="form-textarea"
+                                  data-week="${i}"
+                                  data-field="bad"
+                                  placeholder="Ex: Esqueci 3x à noite...">${week.bad}</textarea>
+                    </div>
+                    <div style="grid-column: 1 / -1;" class="form-group">
+                        <label class="form-label">Foco para próxima semana</label>
+                        <textarea class="form-textarea"
+                                  data-week="${i}"
+                                  data-field="adjust"
+                                  placeholder="Ex: Mudar para manhã + lembrete...">${week.adjust}</textarea>
+                    </div>
+                </div>
+                <button class="btn btn-success week-done-btn"
+                        data-week="${i}"
+                        style="margin-top:15px; max-width:260px;">
+                    ${week.done ? 'Semana marcada como concluída' : 'Marcar semana como concluída'}
+                </button>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+
+    // salvar textos
+    container.querySelectorAll('textarea').forEach(textarea => {
+        textarea.oninput = (e) => {
+            const weekIdx = parseInt(e.target.dataset.week);
+            const field = e.target.dataset.field;
+            currentClient.data.weeklyReviews[weekIdx][field] = e.target.value;
+            saveClientData();
+        };
+    });
+
+    // marcar semana concluída
+    container.querySelectorAll('.week-done-btn').forEach(btn => {
+        btn.onclick = (e) => {
+            const idx = parseInt(e.target.dataset.week);
+            const w = currentClient.data.weeklyReviews[idx];
+            w.done = !w.done;
+            saveClientData();
+            renderWeeklyReviews();
+            renderDashboard();
+        };
+    });
+}
+
+
+        function saveClientData() {
+            const idx = clients.findIndex(c => c.id === currentClient.id);
+            if (idx !== -1) {
+                clients[idx] = currentClient;
+                localStorage.setItem('quebreclients', JSON.stringify(clients));
+            }
+        }
+	function archiveCurrentCycle() {
+    if (!currentClient) return;
+
+    const data = currentClient.data;
+
+    const cycleSummary = {
+        savedAt: new Date().toISOString(),
+        promise: data.promise,
+        habitMain: data.habitMain,
+        habitSec: data.habitSec,
+        days: JSON.parse(JSON.stringify(data.days)),
+        weeklyReviews: JSON.parse(JSON.stringify(data.weeklyReviews)),
+        challenges: JSON.parse(JSON.stringify(data.challenges)),
+        consistencyFinal: Math.round(
+            data.days.filter(d => d.status === 'F' || d.status === 'M').length / 30 * 100
+        )
+    };
+
+    if (!Array.isArray(currentClient.data.cycles)) {
+        currentClient.data.cycles = [];
+    }
+
+    currentClient.data.cycles.push(cycleSummary);
+    saveClientData();
+    alert('Ciclo atual salvo no histórico! Pode agora resetar para um novo ciclo.');
+}
+
+function resetCycle() {
+    if (!currentClient) return;
+
+    if (!confirm('Tem certeza que deseja limpar este ciclo e começar um novo? Os dados atuais continuarão guardados no histórico se já tiver salvado.')) {
+        return;
+    }
+
+    currentClient.data.days = Array(30).fill().map((_, i) => ({
+        day: i + 1,
+        status: '',
+        mood: '',
+        note: '',
+        challengeText: ''
+    }));
+
+    currentClient.data.challenges = Array(30).fill(false);
+
+    currentClient.data.weeklyReviews = [
+        { week: '1', good: '', bad: '', adjust: '', done: false },
+        { week: '2', good: '', bad: '', adjust: '', done: false },
+        { week: '3', good: '', bad: '', adjust: '', done: false },
+        { week: '4', good: '', bad: '', adjust: '', done: false },
+        { week: '5', good: '', bad: '', adjust: '', done: false }
+    ];
+
+    saveClientData();
+    renderAll();
+    alert('Novo ciclo iniciado! Todos os dias e desafios foram limpos.');
+}
+
+
+        function renderClients() {
+            const list = document.getElementById('clientsList');
+            if (clients.length === 0) {
+                list.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;">Nenhum cliente criado ainda</div>';
+                return;
+            }
+            
+            list.innerHTML = clients.map(client => `
+                <div class="card" style="padding: 20px; margin-bottom: 15px;">
+                    <div style="font-size: 18px; font-weight: 700; color: #1e3a8a; margin-bottom: 10px;">${client.name}</div>
+                    <div style="font-size: 14px; color: #6b7280; margin-bottom: 15px;">${client.id}</div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn" onclick="copyClientLink('${client.id}')" style="flex: 1;">Copiar Link</button>
+                        <button class="btn" onclick="deleteClient('${client.id}')" style="background: #ef4444; flex: 1;">Deletar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function copyClientLink(id) {
+            navigator.clipboard.writeText(`${window.location.href}?profile=${id}`).then(() => {
+                alert('Link copiado para área de transferência!');
+            });
+        }
+
+        function deleteClient(id) {
+            if (confirm('Tem certeza que deseja deletar este cliente?')) {
+                clients = clients.filter(c => c.id !== id);
+                localStorage.setItem('quebreclients', JSON.stringify(clients));
+                renderClients();
+            }
+        }
+
+        function logoutApp() {
+            document.getElementById('appMain').style.display = 'none';
+            document.getElementById('gerenciador').classList.add('active');
+            currentClient = null;
+        }
+function toggleProfileMenu() {
+    const menu = document.getElementById('profileMenu');
+    if (!currentClient) return;
+
+    const visible = menu.style.display === 'block';
+    if (visible) {
+        menu.style.display = 'none';
+        return;
+    }
+
+    document.getElementById('profileName').textContent    = currentClient.name;
+    document.getElementById('profileId').textContent      = currentClient.id;
+    document.getElementById('profilePromise').textContent = currentClient.data.promise || '(sem promessa definida)';
+
+    // montar lista de ciclos
+    const cyclesBox = document.getElementById('cyclesList');
+    const cycles = currentClient.data.cycles || [];
+    if (cycles.length === 0) {
+        cyclesBox.innerHTML = '<div style="color:#9ca3af;">Nenhum ciclo salvo ainda.</div>';
+    } else {
+        cyclesBox.innerHTML = cycles.map((c, idx) => {
+            const dateLabel = new Date(c.savedAt).toLocaleDateString('pt-PT', {
+                day: '2-digit', month: '2-digit', year: '2-digit'
+            });
+            return `
+                <div style="margin-bottom:4px; display:flex; justify-content:space-between; align-items:center; gap:6px;">
+                    <span>#${idx + 1} · ${dateLabel} · ${c.consistencyFinal || 0}%</span>
+                    <button onclick="loadCycle(${idx})"
+                            style="border:none; background:#1e3a8a; color:white; border-radius:6px; padding:2px 6px; font-size:11px; cursor:pointer;">
+                        Abrir
+                    </button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    menu.style.display = 'block';
+}
+
+document.addEventListener('click', (e) => {
+    const menu = document.getElementById('profileMenu');
+    const avatar = document.querySelector('.user-avatar');
+    if (!menu) return;
+    if (menu.style.display === 'block' &&
+        !menu.contains(e.target) &&
+        !avatar.contains(e.target)) {
+        menu.style.display = 'none';
+    }
+});
+
+function changePassword() {
+    const input = document.getElementById('newPassword');
+    const newPwd = input.value.trim();
+
+    if (newPwd.length < 4) {
+        alert('A nova senha precisa de pelo menos 4 caracteres.');
+        return;
+    }
+
+    currentClient.password = newPwd;
+    saveClientData();
+    input.value = '';
+    alert('Senha atualizada com sucesso!');
+}
+
+
+        // Inicializar
+        initApp();
+    </script>
+</body>
+</html>
