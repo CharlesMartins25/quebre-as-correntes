@@ -398,6 +398,12 @@
 
 
     </style>
+<head>
+    <!-- ... seus metas existentes ... -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ... style ... -->
+</head>
+
 </head>
 <body>
     <!-- GERENCIADOR -->
@@ -1168,23 +1174,32 @@ function resetCycle() {
 
 
         function renderClients() {
-            const list = document.getElementById('clientsList');
-            if (clients.length === 0) {
-                list.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;">Nenhum cliente criado ainda</div>';
-                return;
-            }
-            
-            list.innerHTML = clients.map(client => `
-                <div class="card" style="padding: 20px; margin-bottom: 15px;">
-                    <div style="font-size: 18px; font-weight: 700; color: #1e3a8a; margin-bottom: 10px;">${client.name}</div>
-                    <div style="font-size: 14px; color: #6b7280; margin-bottom: 15px;">${client.id}</div>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn" onclick="copyClientLink('${client.id}')" style="flex: 1;">Copiar Link</button>
-                        <button class="btn" onclick="deleteClient('${client.id}')" style="background: #ef4444; flex: 1;">Deletar</button>
-                    </div>
+    const list = document.getElementById('clientsList');
+    if (clients.length === 0) {
+        list.innerHTML = '<p style="color: #6b7280; text-align: center;">Nenhum cliente criado</p>';
+        return;
+    }
+    
+    list.innerHTML = `
+        <div style="margin-bottom: 15px; padding: 10px; background: #f0f9ff; border-radius: 8px;">
+            <button class="btn" onclick="exportData()" style="background: #3b82f6; margin-bottom: 5px;">📱 Exportar</button>
+            <input type="file" id="importFile" accept=".json" onchange="importData(event)" style="display: none;">
+            <button class="btn" onclick="document.getElementById('importFile').click()" style="background: #10b981;">📥 Importar</button>
+        </div>
+        ${clients.map(c => `
+            <div style="background: #f3f4f6; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong>${c.name}</strong> <span style="color: #10b981; font-size: 12px;">${c.id}</span>
                 </div>
-            `).join('');
-        }
+                <div>
+                    <button class="btn" onclick="navigator.clipboard.writeText(window.location.href.split('?')[0] + '?profile=${c.id}'); alert('Link copiado!\\n\\n' + window.location.href.split('?')[0] + '?profile=${c.id}');" style="padding: 8px 12px; font-size: 12px; margin-right: 5px;">Copiar</button>
+                    <button class="btn" onclick="deleteClient('${c.id}')" style="background: #ef4444; padding: 8px 12px; font-size: 12px;">X</button>
+                </div>
+            </div>
+        `).join('')}
+    `;
+}
+
 
         function copyClientLink(id) {
             navigator.clipboard.writeText(`${window.location.href}?profile=${id}`).then(() => {
@@ -1273,7 +1288,34 @@ function changePassword() {
 
         // Inicializar
         initApp();
+// EXPORT/IMPORT SIMPLES
+function exportData() {
+    const data = JSON.stringify(clients, null, 2);
+    const blob = new Blob([data], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `quebre.json`; a.click();
+}
+
+function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            clients = JSON.parse(e.target.result);
+            localStorage.setItem('quebreclients', JSON.stringify(clients));
+            renderClients();
+            alert('✅ Importado!');
+        } catch(err) {
+            alert('❌ Erro no arquivo!');
+        }
+    };
+    reader.readAsText(file);
+}
+
     </script>
 </body>
 </html>
+
 
