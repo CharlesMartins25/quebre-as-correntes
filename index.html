@@ -344,11 +344,59 @@
         }
 
         /* Mobile */
-        @media (max-width: 768px) { 
-            .main-content { padding: 20px 15px; }
-            .grid-2 { grid-template-columns: 1fr; }
-            .tabs { flex-direction: column; }
-        }
+    @media (max-width: 768px) {
+  .main-content { padding: 10px 8px; }
+  
+  /* DASHBOARD - Cards métricas empilhados */
+  .metrics-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+  .metric-card {
+    padding: 20px 16px;
+    margin-bottom: 8px;
+  }
+  .metric-value {
+    font-size: 32px !important;
+  }
+  
+  /* DASHBOARD - Cards promessa/ciclo */
+  .grid-2 {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+  
+  /* SEMANAL - Cards semanas mais compactos */
+  .card {
+    padding: 16px 14px !important;
+    margin-bottom: 12px !important;
+    border-radius: 14px;
+  }
+  
+  /* TEXTOS gerais */
+  .form-textarea {
+    min-height: 70px;
+    font-size: 15px;
+  }
+  .section-title {
+    font-size: 22px;
+    margin-bottom: 15px;
+  }
+  
+  /* ABAS */
+  .tabs {
+    flex-direction: column;
+    padding: 8px;
+    gap: 6px;
+  }
+  .tab-btn {
+    padding: 14px 12px;
+    min-height: 50px;
+  }
+}
+
+
+
     </style>
 </head>
 <body>
